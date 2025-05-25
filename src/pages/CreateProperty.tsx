@@ -46,11 +46,35 @@ const CreateProperty = () => {
   };
 
   const convertToEmbedUrl = (url: string): string | null => {
+    if (!url) return null;
+    
     // Handle maps.app.goo.gl format
     if (url.includes('maps.app.goo.gl')) {
       const embedUrl = url.replace('maps.app.goo.gl', 'www.google.com/maps/embed');
       return embedUrl;
     }
+    
+    // Handle google.com/maps URLs
+    if (url.includes('google.com/maps') && !url.includes('/embed')) {
+      // For now, return the original URL with /embed prefix
+      if (url.includes('google.com/maps/place/')) {
+        const placeMatch = url.match(/google\.com\/maps\/place\/([^\/]+)/);
+        if (placeMatch) {
+          // Simple embed URL without API key for basic functionality
+          return `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3021.123456789!2d-74.0059728!3d40.7127753!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${encodeURIComponent(placeMatch[1])}!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus`;
+        }
+      }
+      
+      // Fallback: try to convert standard maps URL to embed
+      const baseEmbed = url.replace('/maps/', '/maps/embed/');
+      return baseEmbed;
+    }
+    
+    // If it's already an embed URL, return as is
+    if (url.includes('/maps/embed')) {
+      return url;
+    }
+    
     return null;
   };
 
