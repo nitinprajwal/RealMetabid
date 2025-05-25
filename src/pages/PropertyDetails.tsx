@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Clock, MapPin, Home, Calendar, DollarSign, User, Flag, ArrowRight, Plus, Minus, Info, Share2, Heart } from 'lucide-react';
+import { Clock, MapPin, Home, Calendar, DollarSign, User, ArrowRight, Plus, Minus, Info, Share2, Heart } from 'lucide-react';
 import toast from 'react-hot-toast';
+import GoogleMap from '../components/ui/GoogleMap';
 
 const PropertyDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -377,20 +378,14 @@ const PropertyDetails = () => {
                     </div>
                   </div>
                   
-                  {property.google_maps_url && (
+                  {property.address && (
                     <div className="mb-6">
                       <h3 className="text-lg font-semibold mb-2">Location</h3>
-                      <div className="h-60 bg-slate-200 rounded-lg">
-                        <iframe 
-                          src={property.google_maps_url} 
-                          width="100%" 
-                          height="100%" 
-                          style={{ border: 0, borderRadius: '0.5rem' }} 
-                          allowFullScreen 
-                          loading="lazy" 
-                          referrerPolicy="no-referrer-when-downgrade"
-                        ></iframe>
-                      </div>
+                      <GoogleMap 
+                        address={property.address}
+                        height="240px"
+                        className="rounded-lg"
+                      />
                     </div>
                   )}
                   

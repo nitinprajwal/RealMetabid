@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { Image, MapPin, Youtube, Calendar, DollarSign, Plus, Info, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import GoogleMap from '../components/ui/GoogleMap';
 
 const CreateProperty = () => {
   const { user } = useAuth();
@@ -16,7 +17,7 @@ const CreateProperty = () => {
     photo_url: '',
     square_footage: '',
     year_built: '',
-    google_maps_url: '',
+    address: '',
     youtube_url: '',
     amount: '',
     initial_bid: '',
@@ -35,47 +36,12 @@ const CreateProperty = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
-    // Show map preview when a valid Google Maps URL is entered
-    if (name === 'google_maps_url') {
-      const mapsUrl = convertToEmbedUrl(value);
-      if (mapsUrl) {
-        setShowMapPreview(true);
-        setFormData(prev => ({ ...prev, google_maps_url: mapsUrl }));
-      }
+    // Show map preview when an address is entered
+    if (name === 'address' && value.trim()) {
+      setShowMapPreview(true);
+    } else if (name === 'address' && !value.trim()) {
+      setShowMapPreview(false);
     }
-  };
-
-  const convertToEmbedUrl = (url: string): string | null => {
-    if (!url) return null;
-    
-    // Handle maps.app.goo.gl format
-    if (url.includes('maps.app.goo.gl')) {
-      const embedUrl = url.replace('maps.app.goo.gl', 'www.google.com/maps/embed');
-      return embedUrl;
-    }
-    
-    // Handle google.com/maps URLs
-    if (url.includes('google.com/maps') && !url.includes('/embed')) {
-      // For now, return the original URL with /embed prefix
-      if (url.includes('google.com/maps/place/')) {
-        const placeMatch = url.match(/google\.com\/maps\/place\/([^\/]+)/);
-        if (placeMatch) {
-          // Simple embed URL without API key for basic functionality
-          return `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3021.123456789!2d-74.0059728!3d40.7127753!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${encodeURIComponent(placeMatch[1])}!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus`;
-        }
-      }
-      
-      // Fallback: try to convert standard maps URL to embed
-      const baseEmbed = url.replace('/maps/', '/maps/embed/');
-      return baseEmbed;
-    }
-    
-    // If it's already an embed URL, return as is
-    if (url.includes('/maps/embed')) {
-      return url;
-    }
-    
-    return null;
   };
 
   const handleImageAdd = () => {
@@ -361,38 +327,33 @@ const CreateProperty = () => {
                 </div>
                 
                 <div className="sm:col-span-2">
-                  <label htmlFor="google_maps_url" className="block text-sm font-medium text-slate-700 mb-1">
-                    Google Maps URL
+                  <label htmlFor="address" className="block text-sm font-medium text-slate-700 mb-1">
+                    Property Address
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <MapPin size={18} className="text-slate-400" />
                     </div>
                     <input
-                      type="url"
-                      id="google_maps_url"
-                      name="google_maps_url"
-                      value={formData.google_maps_url}
+                      type="text"
+                      id="address"
+                      name="address"
+                      value={formData.address}
                       onChange={handleChange}
                       className="input pl-10"
-                      placeholder="Enter Google Maps URL (e.g., https://maps.app.goo.gl/...)"
+                      placeholder="Enter property address (e.g., 123 Main St, City, State)"
                     />
                   </div>
                   
-                  {showMapPreview && formData.google_maps_url && (
+                  {showMapPreview && formData.address && (
                     <motion.div 
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       className="mt-2"
                     >
-                      <iframe
-                        src={formData.google_maps_url}
-                        width="100%"
-                        height="200"
-                        style={{ border: 0 }}
-                        allowFullScreen
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
+                      <GoogleMap
+                        address={formData.address}
+                        height="200px"
                         className="rounded-lg"
                       />
                     </motion.div>
