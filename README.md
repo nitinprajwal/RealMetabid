@@ -185,7 +185,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support 💬
 
-For support, email support@propertybid.com or join our Discord channel.
+For support, email nitinprajwalr@gmail.com or join our Discord channel.
 
 ## Acknowledgments 🙏
 
